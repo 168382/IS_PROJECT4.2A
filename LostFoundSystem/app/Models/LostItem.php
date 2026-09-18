@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class LostItem extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'category_id',
+        'item_name',
+        'description',
+        'color',
+        'brand',
+        'location_lost',
+        'date_lost',
+        'image_path',
+        'status'
+    ];
+
+    protected $casts = [
+        'date_lost' => 'date',
+    ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+}

@@ -1,0 +1,62 @@
+[
+    {
+        "id": 1,
+        "name": "System Administrator",
+        "email": "admin@lostfound.com",
+        "password": "$2y$12$gps.x3HmqSCaZ8O.enet4OpOoAESjcKqSzuNiClJo1aDqKlQ4Wpiu",
+        "role": "admin",
+        "email_verified_at": "2026-07-15 15:21:53",
+        "created_at": "2026-07-15 15:21:53",
+        "updated_at": "2026-09-10 20:46:18"
+    },
+    {
+        "id": 2,
+        "name": "John Doe",
+        "email": "john@example.com",
+        "password": "$2y$12$46lk8XGyNMUln\/NQFJ64CO6CPgre0742VfHAeyyNiEPUWhCh7S7Y6",
+        "role": "admin",
+        "email_verified_at": null,
+        "created_at": "2026-09-03 17:17:50",
+        "updated_at": "2026-09-03 17:17:50"
+    },
+    {
+        "id": 3,
+        "name": "Vincent rimba",
+        "email": "vincentrimba@gmail.com",
+        "password": "$2y$12$I3Ee\/xIcklofw\/MvfuY9lu4MuormsZvRa3vlIQ3QovryPed3j8u6G",
+        "role": "student",
+        "email_verified_at": null,
+        "created_at": "2026-09-03 17:31:36",
+        "updated_at": "2026-09-03 17:31:36"
+    },
+    {
+        "name": "shaltone Omondi",
+        "email": "shadow@gmail.com",
+        "password": "$2y$12$mppYQjwDj3\/E8sdqe.8qquoeRx4VzCi7oqlS7Yp8RNBo4MmZMgMnm",
+        "role": "student",
+        "email_verified_at": null,
+        "id": 4,
+        "created_at": "2026-09-03 18:17:11",
+        "updated_at": "2026-09-03 18:17:11"
+    },
+    {
+        "name": "rhimba",
+        "email": "rhimbashaltone@gmail.com",
+        "password": "$2y$12$hiFvVgJb52HoOtWI4aIrReDYf6PlsaaZpBdhxagT.4PacTZrfeYZ6",
+        "role": "student",
+        "email_verified_at": null,
+        "id": 5,
+        "created_at": "2026-09-09 12:11:56",
+        "updated_at": "2026-09-09 12:11:56"
+    },
+    {
+        "name": "vincent rimba",
+        "email": "rimbavincent@gmail.com",
+        "password": "$2y$12$xHViMvXz5qW.sKz0q.vdh.kHxCDxmLg0VCgqya7Ynr6yzDDtee6em",
+        "role": "student",
+        "email_verified_at": null,
+        "id": 6,
+        "created_at": "2026-09-10 20:00:12",
+        "updated_at": "2026-09-10 20:00:12"
+    }
+]
