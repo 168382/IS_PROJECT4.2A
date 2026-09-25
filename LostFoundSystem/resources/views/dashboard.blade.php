@@ -14,14 +14,16 @@
                     <h2 class="fw-bold mb-1">Welcome back, {{ $user['name'] ?? 'User' }}!</h2>
                     <p class="mb-0 text-white-50">{{ $user['email'] ?? '' }} — Manage your reported items, track claims, and review NLP matches.</p>
                 </div>
-                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                    <a href="{{ url('/report/lost') }}" class="btn btn-light me-2 fw-semibold px-3 py-2 rounded-3 shadow-sm">
-                        <i class="fas fa-plus-circle me-1 text-danger"></i> Report Lost
-                    </a>
-                    <a href="{{ url('/report/found') }}" class="btn btn-outline-light fw-semibold px-3 py-2 rounded-3">
-                        <i class="fas fa-plus-circle me-1 text-success"></i> Report Found
-                    </a>
-                </div>
+                @if(($user['role'] ?? null) !== 'admin')
+                    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                        <a href="{{ url('/report/lost') }}" class="btn btn-light me-2 fw-semibold px-3 py-2 rounded-3 shadow-sm">
+                            <i class="fas fa-plus-circle me-1 text-danger"></i> Report Lost
+                        </a>
+                        <a href="{{ url('/report/found') }}" class="btn btn-outline-light fw-semibold px-3 py-2 rounded-3">
+                            <i class="fas fa-plus-circle me-1 text-success"></i> Report Found
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -119,13 +121,17 @@
             <div class="card border-0 shadow-sm rounded-4 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-bold mb-0"><i class="fas fa-exclamation-triangle text-warning me-2"></i> Items You Reported Lost</h5>
-                    <a href="{{ url('/report/lost') }}" class="btn btn-sm btn-primary-gradient"><i class="fas fa-plus me-1"></i> Report New</a>
+                    @if(($user['role'] ?? null) !== 'admin')
+                        <a href="{{ url('/report/lost') }}" class="btn btn-sm btn-primary-gradient"><i class="fas fa-plus me-1"></i> Report New</a>
+                    @endif
                 </div>
                 @if(count($lostItems) === 0)
                     <div class="text-center py-5">
                         <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
                         <p class="text-secondary">You haven't reported any lost items yet.</p>
-                        <a href="{{ url('/report/lost') }}" class="btn btn-outline-primary rounded-3">Report Lost Item</a>
+                        @if(($user['role'] ?? null) !== 'admin')
+                            <a href="{{ url('/report/lost') }}" class="btn btn-outline-primary rounded-3">Report Lost Item</a>
+                        @endif
                     </div>
                 @else
                     <div class="table-responsive">
@@ -189,13 +195,17 @@
             <div class="card border-0 shadow-sm rounded-4 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-bold mb-0"><i class="fas fa-hand-holding-heart text-success me-2"></i> Items You Reported Found</h5>
-                    <a href="{{ url('/report/found') }}" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i> Report New</a>
+                    @if(($user['role'] ?? null) !== 'admin')
+                        <a href="{{ url('/report/found') }}" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i> Report New</a>
+                    @endif
                 </div>
                 @if(count($foundItems) === 0)
                     <div class="text-center py-5">
                         <i class="fas fa-hand-holding-heart fa-3x text-muted mb-3"></i>
                         <p class="text-secondary">You haven't reported any found items yet.</p>
-                        <a href="{{ url('/report/found') }}" class="btn btn-outline-success rounded-3">Report Found Item</a>
+                        @if(($user['role'] ?? null) !== 'admin')
+                            <a href="{{ url('/report/found') }}" class="btn btn-outline-success rounded-3">Report Found Item</a>
+                        @endif
                     </div>
                 @else
                     <div class="table-responsive">

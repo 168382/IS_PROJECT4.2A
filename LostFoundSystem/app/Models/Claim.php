@@ -15,7 +15,11 @@ class Claim extends Model
         'found_item_id',
         'proof_description',
         'proof_image_path',
-        'status'
+        'status',
+        'collection_verification_details',
+        'collection_notes',
+        'collected_at',
+        'collected_by_user_id',
     ];
 
     public function user(): BelongsTo

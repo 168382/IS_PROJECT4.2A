@@ -62,8 +62,10 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('dashboard');
         Route::get('/claims', [AdminController::class, 'claims'])->name('claims');
+        Route::get('/machine-learning', [AdminController::class, 'machineLearning'])->name('machine-learning');
         Route::post('/claims/{id}/approve', [AdminController::class, 'approveClaim'])->name('claims.approve');
         Route::post('/claims/{id}/reject', [AdminController::class, 'rejectClaim'])->name('claims.reject');
+        Route::post('/claims/{id}/confirm-collection', [AdminController::class, 'confirmCollection'])->name('claims.confirm-collection');
 
         Route::get('/items', [AdminController::class, 'items'])->name('items');
         Route::delete('/items/lost/{id}', [AdminController::class, 'deleteLostItem'])->name('items.lost.delete');

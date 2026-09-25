@@ -101,8 +101,15 @@ class ClaimService
         return $claim;
     }
 
-    public function markRetrieved(Claim $claim, User $staff): void
+    public function markRetrieved(Claim $claim, User $staff, array $collectionDetails): Claim
     {
+        $claim = $this->repository->update($claim, [
+            'collection_verification_details' => $collectionDetails['collection_verification_details'],
+            'collection_notes' => $collectionDetails['collection_notes'] ?? null,
+            'collected_at' => now()->toDateTimeString(),
+            'collected_by_user_id' => $staff->id,
+        ]);
+
         if ($claim->foundItem) {
             $this->foundItemRepo->update($claim->foundItem, ['status' => 'claimed']);
         }
@@ -125,6 +132,15 @@ class ClaimService
             );
         }
 
-        $this->audit->log($staff->id, 'mark_retrieved', Claim::class, $claim->id, null, request());
+        $this->audit->log(
+            $staff->id,
+            'confirm_item_collection',
+            Claim::class,
+            $claim->id,
+            'Collection confirmed after owner identity verification.',
+            request()
+        );
+
+        return $claim;
     }
 }

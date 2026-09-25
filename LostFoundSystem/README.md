@@ -21,8 +21,12 @@ A polished campus lost-and-found platform built with Laravel. It helps students 
 
 ## Local setup
 
+The application requires PHP 8.3 or later. Frontend asset builds require Node.js
+20.19 or later (or Node.js 22.12 or later).
+
 ```bash
 composer install
+npm ci
 cp .env.example .env
 php artisan key:generate
 php artisan storage:link
@@ -30,6 +34,15 @@ php artisan serve
 ```
 
 Visit `http://127.0.0.1:8000` and create an account. Existing local demo data is stored in `database/json/`.
+
+To build frontend assets:
+
+```bash
+npm run build
+```
+
+The Laravel Vite integration can optimize font fallbacks when the optional
+`fontaine` package is installed. Its absence does not prevent builds.
 
 To run the optional matching API in a second terminal:
 

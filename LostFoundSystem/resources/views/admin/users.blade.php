@@ -3,23 +3,7 @@
 
 @section('content')
 <div class="admin-shell">
-    <aside class="admin-sidebar">
-        <div class="admin-brand">
-            <div class="admin-brand-icon"><i class="fas fa-user-shield"></i></div>
-            <div>
-                <div class="admin-brand-title">Admin Panel</div>
-                <div class="admin-brand-sub">{{ $userData['name'] ?? 'Administrator' }}</div>
-            </div>
-        </div>
-        <nav class="admin-nav">
-            <a href="{{ url('/admin') }}" class="admin-nav-item"><i class="fas fa-tachometer-alt"></i> <span>Overview</span></a>
-            <a href="{{ url('/admin/claims') }}" class="admin-nav-item"><i class="fas fa-tasks"></i> <span>Claims</span></a>
-            <a href="{{ url('/admin/items') }}" class="admin-nav-item"><i class="fas fa-boxes"></i> <span>All Items</span></a>
-            <a href="{{ url('/admin/users') }}" class="admin-nav-item active"><i class="fas fa-users-cog"></i> <span>Users</span></a>
-            <div class="admin-nav-divider"></div>
-            <a href="{{ url('/dashboard') }}" class="admin-nav-item"><i class="fas fa-arrow-left"></i> <span>Exit Admin</span></a>
-        </nav>
-    </aside>
+    @include('components.admin-top-nav', ['userData' => $userData])
 
     <main class="admin-main">
         <div class="admin-topbar">

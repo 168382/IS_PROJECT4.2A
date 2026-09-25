@@ -4,38 +4,7 @@
 @section('content')
 <div class="admin-shell">
 
-    {{-- Sidebar --}}
-    <aside class="admin-sidebar">
-        <div class="admin-brand">
-            <div class="admin-brand-icon"><i class="fas fa-user-shield"></i></div>
-            <div>
-                <div class="admin-brand-title">{{ ($userData['role'] ?? '') === 'admin' ? 'Admin Panel' : 'Staff Portal' }}</div>
-                <div class="admin-brand-sub">{{ $userData['name'] ?? 'Administrator' }}</div>
-            </div>
-        </div>
-        <nav class="admin-nav">
-            @if(($userData['role'] ?? '') === 'admin')
-                <a href="{{ url('/admin') }}" class="admin-nav-item">
-                    <i class="fas fa-tachometer-alt"></i> <span>Overview</span>
-                </a>
-            @endif
-            <a href="{{ url('/admin/claims') }}" class="admin-nav-item active">
-                <i class="fas fa-tasks"></i> <span>Claims</span>
-            </a>
-            @if(($userData['role'] ?? '') === 'admin')
-                <a href="{{ url('/admin/items') }}" class="admin-nav-item">
-                    <i class="fas fa-boxes"></i> <span>All Items</span>
-                </a>
-                <a href="{{ url('/admin/users') }}" class="admin-nav-item">
-                    <i class="fas fa-users-cog"></i> <span>Users</span>
-                </a>
-            @endif
-            <div class="admin-nav-divider"></div>
-            <a href="{{ url('/dashboard') }}" class="admin-nav-item">
-                <i class="fas fa-arrow-left"></i> <span>Exit Admin</span>
-            </a>
-        </nav>
-    </aside>
+    @include('components.admin-top-nav', ['userData' => $userData, 'pendingClaims' => $claims->where('status', 'pending')->count()])
 
     {{-- Main --}}
     <main class="admin-main">
@@ -166,6 +135,14 @@
                                                     </button>
                                                 </div>
                                             @endif
+
+                                            @if($status === 'approved' && ! $claim->collected_at && ($userData['role'] ?? '') === 'admin')
+                                                <div class="claim-actions">
+                                                    <button class="btn btn-primary w-100 rounded-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#confirmCollectionModal{{ $claim->id }}">
+                                                        <i class="fas fa-handshake me-1"></i> Confirm Collection
+                                                    </button>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
 
@@ -191,6 +168,47 @@
                                                             <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancel</button>
                                                             <button type="submit" class="btn btn-danger rounded-3 fw-semibold">
                                                                 <i class="fas fa-times me-1"></i> Confirm Rejection
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    @if($status === 'approved' && ($userData['role'] ?? '') === 'admin')
+                                        <div class="modal fade" id="confirmCollectionModal{{ $claim->id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content border-0 rounded-4">
+                                                    <div class="modal-header border-0">
+                                                        <h5 class="modal-title fw-bold text-primary"><i class="fas fa-user-check me-2"></i>Confirm Collection #CLM-{{ $claim->id }}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <form method="POST" action="{{ route('admin.claims.confirm-collection', $claim->id) }}">
+                                                        @csrf
+                                                        <div class="modal-body">
+                                                            <div class="alert alert-light border rounded-3 small">
+                                                                <strong>Claimant:</strong> {{ $claim->user?->name ?? 'User #'.$claim->user_id }}<br>
+                                                                <strong>Email:</strong> {{ $claim->user?->email ?? '—' }}
+                                                            </div>
+                                                            <p class="text-secondary small">Verify the claimant's identity in person. Record only the verification method and non-sensitive identifying details, such as the ID type and last four digits.</p>
+                                                            <div class="mb-3">
+                                                                <label for="collectionVerification{{ $claim->id }}" class="form-label fw-semibold">Identity Verification Details</label>
+                                                                <textarea class="form-control" name="collection_verification_details" id="collectionVerification{{ $claim->id }}" rows="4" minlength="10" maxlength="1000" required placeholder="Example: Student ID checked; name and last four digits matched the account."></textarea>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="collectionNotes{{ $claim->id }}" class="form-label fw-semibold">Collection Notes <span class="text-muted fw-normal">(optional)</span></label>
+                                                                <textarea class="form-control" name="collection_notes" id="collectionNotes{{ $claim->id }}" rows="3" maxlength="1000" placeholder="Optional handover notes."></textarea>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" name="collection_confirmed" value="1" id="collectionConfirmed{{ $claim->id }}" required>
+                                                                <label class="form-check-label" for="collectionConfirmed{{ $claim->id }}">I verified the claimant and confirmed that this item was collected.</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0">
+                                                            <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-primary rounded-3 fw-semibold">
+                                                                <i class="fas fa-check me-1"></i> Record Collection
                                                             </button>
                                                         </div>
                                                     </form>

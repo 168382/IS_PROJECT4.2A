@@ -259,8 +259,10 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
                     <li class="nav-item"><a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}"><i class="fas fa-home me-1"></i> Home</a></li>
-                    <li class="nav-item"><a class="nav-link {{ request()->is('report/lost') ? 'active' : '' }}" href="{{ url('/report/lost') }}"><i class="fas fa-exclamation-triangle me-1"></i> Report Lost</a></li>
-                    <li class="nav-item"><a class="nav-link {{ request()->is('report/found') ? 'active' : '' }}" href="{{ url('/report/found') }}"><i class="fas fa-hand-holding-heart me-1"></i> Report Found</a></li>
+                    @if(session('auth_user_role') !== 'admin')
+                        <li class="nav-item"><a class="nav-link {{ request()->is('report/lost') ? 'active' : '' }}" href="{{ url('/report/lost') }}"><i class="fas fa-exclamation-triangle me-1"></i> Report Lost</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->is('report/found') ? 'active' : '' }}" href="{{ url('/report/found') }}"><i class="fas fa-hand-holding-heart me-1"></i> Report Found</a></li>
+                    @endif
                     <li class="nav-item"><a class="nav-link {{ request()->is('search') ? 'active' : '' }}" href="{{ url('/search') }}"><i class="fas fa-search me-1"></i> Search</a></li>
                     
                     @if(session()->has('auth_user_id'))

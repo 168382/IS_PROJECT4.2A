@@ -90,6 +90,27 @@ class AdminController extends Controller
         return view('admin.claims', compact('claims', 'userData'));
     }
 
+    public function machineLearning(Request $request)
+    {
+        $userData = $this->adminGuard($request);
+        if (! $userData) {
+            return redirect('/dashboard')->with('error', 'Access denied. Administrative privileges required.');
+        }
+
+        $lostItems = $this->lostItemRepo->all();
+        $foundItems = $this->foundItemRepo->all();
+        $matches = $this->matchRepo->all();
+
+        return view('admin.machine-learning', [
+            'userData' => $userData,
+            'lostCount' => $lostItems->count(),
+            'foundCount' => $foundItems->count(),
+            'matchCount' => $matches->count(),
+            'averageSimilarity' => round($this->matchRepo->averageSimilarity(), 2),
+            'nlpUrl' => config('services.nlp.url', 'http://127.0.0.1:5000/match'),
+        ]);
+    }
+
     public function approveClaim(Request $request, int $id)
     {
         $userData = $this->guard($request);
@@ -143,6 +164,37 @@ class AdminController extends Controller
         $this->claimService->reject($claim, $staff, $reason);
 
         return back()->with('success', 'Claim #CLM-'.$id.' has been rejected. User notified automatically.');
+    }
+
+    public function confirmCollection(Request $request, int $id)
+    {
+        $userData = $this->adminGuard($request);
+        if (! $userData) {
+            return back()->with('error', 'Access denied. Administrative privileges required.');
+        }
+
+        $validated = $request->validate([
+            'collection_verification_details' => 'required|string|min:10|max:1000',
+            'collection_notes' => 'nullable|string|max:1000',
+            'collection_confirmed' => 'accepted',
+        ]);
+
+        $claim = $this->claimRepo->find($id);
+        if (! $claim) {
+            return back()->with('error', 'Claim not found.');
+        }
+
+        if ($claim->status !== 'approved' || $claim->collected_at) {
+            return back()->with('error', 'Only approved claims that have not been collected can be confirmed.');
+        }
+
+        $staff = new User($userData);
+        $staff->id = (int) $userData['id'];
+        $staff->exists = true;
+
+        $this->claimService->markRetrieved($claim, $staff, $validated);
+
+        return back()->with('success', 'Collection for claim #CLM-'.$id.' has been confirmed and recorded.');
     }
 
     // ─── Item Management ─────────────────────────────────────────
