@@ -14,14 +14,14 @@ A polished campus lost-and-found platform built with Laravel. It helps students 
 
 ## Technology
 
-- PHP 8.3 and Laravel 13
+- PHP 8.2.4 and Laravel 12
 - Bootstrap 5 and Font Awesome
 - JSON-backed repository layer for zero-configuration local development
 - Optional Python/Flask NLP matcher in `machine_learning/`
 
 ## Local setup
 
-The application requires PHP 8.3 or later. Frontend asset builds require Node.js
+The application requires PHP 8.2.4 or later. Frontend asset builds require Node.js
 20.19 or later (or Node.js 22.12 or later).
 
 ```bash
