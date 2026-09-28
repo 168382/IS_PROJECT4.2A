@@ -2,13 +2,53 @@
 
 namespace Tests\Feature;
 
+use App\Services\JsonDatabase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AdminAccessTest extends TestCase
 {
+    use RefreshDatabase;
+
+    private string $fixtureDirectory;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->fixtureDirectory = sys_get_temp_dir().DIRECTORY_SEPARATOR.'lost-found-admin-'.bin2hex(random_bytes(8));
+        mkdir($this->fixtureDirectory);
+        $database = new class ($this->fixtureDirectory) extends JsonDatabase {
+            public function __construct(string $directory)
+            {
+                $this->basePath = $directory;
+            }
+        };
+        $this->app->instance(JsonDatabase::class, $database);
+
+        foreach (['admin', 'student'] as $role) {
+            $database->insert('users', [
+                'name' => ucfirst($role),
+                'email' => $role.'@example.test',
+                'role' => $role,
+            ]);
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        $file = $this->fixtureDirectory.DIRECTORY_SEPARATOR.'users.json';
+        if (is_file($file)) {
+            unlink($file);
+        }
+        rmdir($this->fixtureDirectory);
+
+        parent::tearDown();
+    }
+
     private function userIdForRole(string $role): int
     {
-        $users = json_decode((string) file_get_contents(database_path('json/users.json')), true);
+        $users = $this->app->make(JsonDatabase::class)->all('users');
 
         foreach ($users as $user) {
             if (($user['role'] ?? null) === $role) {
@@ -16,7 +56,7 @@ class AdminAccessTest extends TestCase
             }
         }
 
-        $this->fail("Expected a {$role} user in the local demo data.");
+        $this->fail("Expected a {$role} test user.");
     }
 
     public function test_admin_can_open_the_operational_dashboard_and_reports(): void

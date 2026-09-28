@@ -37,6 +37,9 @@ Route::post('/reset-password/{token}', [ForgotPasswordController::class, 'resetP
 // ─── Item Reporting & Search (auth required) ──────────────────
 Route::middleware(['auth.custom'])->group(function () {
 
+    Route::get('/items/{type}/{id}/image', [ItemController::class, 'image'])
+        ->whereIn('type', ['lost', 'found'])->whereNumber('id')->name('items.image');
+
     // Search
     Route::get('/search', [ItemController::class, 'search'])->name('search');
 

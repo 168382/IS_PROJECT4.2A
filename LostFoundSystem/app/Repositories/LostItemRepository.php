@@ -6,8 +6,13 @@ use App\Models\LostItem;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
-class LostItemRepository extends BaseRepository
+class LostItemRepository extends ItemRecordRepository
 {
+    protected function itemType(): string
+    {
+        return 'lost';
+    }
+
     protected function model(): string
     {
         return LostItem::class;
@@ -26,7 +31,7 @@ class LostItemRepository extends BaseRepository
 
     public function search(array $filters): LengthAwarePaginator
     {
-        $records = $this->jsonDb->all($this->tableName());
+        $records = $this->records();
 
         $filtered = array_filter($records, function ($item) use ($filters) {
             if (!empty($filters['keyword'])) {

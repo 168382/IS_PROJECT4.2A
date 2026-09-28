@@ -6,8 +6,13 @@ use App\Models\FoundItem;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
-class FoundItemRepository extends BaseRepository
+class FoundItemRepository extends ItemRecordRepository
 {
+    protected function itemType(): string
+    {
+        return 'found';
+    }
+
     protected function model(): string
     {
         return FoundItem::class;
@@ -26,7 +31,7 @@ class FoundItemRepository extends BaseRepository
 
     public function search(array $filters): LengthAwarePaginator
     {
-        $records = $this->jsonDb->all($this->tableName());
+        $records = $this->records();
 
         $filtered = array_filter($records, function ($item) use ($filters) {
             if (!empty($filters['keyword'])) {

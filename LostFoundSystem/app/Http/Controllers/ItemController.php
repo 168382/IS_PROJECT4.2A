@@ -22,6 +22,18 @@ class ItemController extends Controller
         protected AuthService $auth,
     ) {}
 
+    public function image(string $type, int $id)
+    {
+        $repository = $type === 'lost' ? $this->lostItemRepo : $this->foundItemRepo;
+        $image = $repository->image($id);
+        abort_unless($image && $image->image_data && $image->image_mime, 404);
+
+        return response($image->image_data)
+            ->header('Content-Type', $image->image_mime)
+            ->header('X-Content-Type-Options', 'nosniff')
+            ->header('Cache-Control', 'private, max-age=3600');
+    }
+
     /**
      * Show the Report Lost Item form.
      */
@@ -43,7 +55,7 @@ class ItemController extends Controller
             'date_lost' => 'required|date|before_or_equal:today',
             'color' => 'nullable|string|max:100',
             'brand' => 'nullable|string|max:100',
-            'image' => 'nullable|image|max:5120',
+            'image' => 'nullable|image|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:5120|dimensions:max_width=4096,max_height=4096',
         ]);
 
         if (! $this->categoryRepo->find((int) $validated['category_id'])) {
@@ -87,7 +99,7 @@ class ItemController extends Controller
             'date_found' => 'required|date|before_or_equal:today',
             'color' => 'nullable|string|max:100',
             'brand' => 'nullable|string|max:100',
-            'image' => 'nullable|image|max:5120',
+            'image' => 'nullable|image|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:5120|dimensions:max_width=4096,max_height=4096',
         ]);
 
         if (! $this->categoryRepo->find((int) $validated['category_id'])) {

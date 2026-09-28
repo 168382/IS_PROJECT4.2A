@@ -64,36 +64,16 @@ abstract class BaseRepository
 
         // Hydrate lostItem if lost_item_id exists
         if (isset($attributes['lost_item_id'])) {
-            $lostRecord = $this->jsonDb->find('lost_items', (int)$attributes['lost_item_id']);
-            if ($lostRecord) {
-                $lostModel = new \App\Models\LostItem($lostRecord);
-                $lostModel->id = $lostRecord['id'];
-                if (isset($lostRecord['category_id'])) {
-                    $catRecord = $this->jsonDb->find('categories', (int)$lostRecord['category_id']);
-                    if ($catRecord) {
-                        $catModel = new \App\Models\Category($catRecord);
-                        $catModel->id = $catRecord['id'];
-                        $lostModel->setRelation('category', $catModel);
-                    }
-                }
+            $lostModel = app(LostItemRepository::class)->find((int) $attributes['lost_item_id']);
+            if ($lostModel) {
                 $model->setRelation('lostItem', $lostModel);
             }
         }
 
         // Hydrate foundItem if found_item_id exists
         if (isset($attributes['found_item_id'])) {
-            $foundRecord = $this->jsonDb->find('found_items', (int)$attributes['found_item_id']);
-            if ($foundRecord) {
-                $foundModel = new \App\Models\FoundItem($foundRecord);
-                $foundModel->id = $foundRecord['id'];
-                if (isset($foundRecord['category_id'])) {
-                    $catRecord = $this->jsonDb->find('categories', (int)$foundRecord['category_id']);
-                    if ($catRecord) {
-                        $catModel = new \App\Models\Category($catRecord);
-                        $catModel->id = $catRecord['id'];
-                        $foundModel->setRelation('category', $catModel);
-                    }
-                }
+            $foundModel = app(FoundItemRepository::class)->find((int) $attributes['found_item_id']);
+            if ($foundModel) {
                 $model->setRelation('foundItem', $foundModel);
             }
         }

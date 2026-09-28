@@ -6,7 +6,6 @@ use App\Models\FoundItem;
 use App\Models\User;
 use App\Repositories\FoundItemRepository;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 class FoundItemService
 {
@@ -14,12 +13,14 @@ class FoundItemService
         protected FoundItemRepository $repository,
         protected NlpMatchingService $nlp,
         protected AuditLogService $audit,
+        protected ItemImage $images,
     ) {}
 
     public function create(User $user, array $data, ?UploadedFile $image = null): FoundItem
     {
+        unset($data['image']);
         if ($image) {
-            $data['image_path'] = $image->store('items/found', 'public');
+            $data = array_merge($data, $this->images->fromUpload($image), ['image_path' => 'database']);
         }
 
         $data['user_id'] = $user->id;
@@ -36,11 +37,9 @@ class FoundItemService
 
     public function update(FoundItem $item, array $data, ?UploadedFile $image = null): FoundItem
     {
+        unset($data['image']);
         if ($image) {
-            if ($item->image_path) {
-                Storage::disk('public')->delete($item->image_path);
-            }
-            $data['image_path'] = $image->store('items/found', 'public');
+            $data = array_merge($data, $this->images->fromUpload($image), ['image_path' => 'database']);
         }
 
         return $this->repository->update($item, $data);
@@ -48,9 +47,6 @@ class FoundItemService
 
     public function delete(FoundItem $item): void
     {
-        if ($item->image_path) {
-            Storage::disk('public')->delete($item->image_path);
-        }
         $this->repository->delete($item);
     }
 }

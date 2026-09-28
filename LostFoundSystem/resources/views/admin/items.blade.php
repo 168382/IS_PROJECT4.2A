@@ -46,7 +46,7 @@
                                         <tr>
                                             <td>
                                                 @if($item->image_path)
-                                                    <img src="{{ asset('storage/'.$item->image_path) }}" class="rounded-2 border" style="width:48px;height:48px;object-fit:cover;cursor:pointer;" onclick="openImageModal('{{ asset('storage/'.$item->image_path) }}', '{{ e($item->item_name) }}')">
+                                                    <img src="{{ $item->image_url }}" class="rounded-2 border" style="width:48px;height:48px;object-fit:cover;cursor:pointer;" onclick="openImageModal('{{ $item->image_url }}', '{{ e($item->item_name) }}')">
                                                 @else
                                                     <div class="rounded-2 bg-light border text-muted d-flex align-items-center justify-content-center" style="width:48px;height:48px;"><i class="fas fa-image"></i></div>
                                                 @endif
@@ -87,7 +87,7 @@
                                         <tr>
                                             <td>
                                                 @if($item->image_path)
-                                                    <img src="{{ asset('storage/'.$item->image_path) }}" class="rounded-2 border" style="width:48px;height:48px;object-fit:cover;cursor:pointer;" onclick="openImageModal('{{ asset('storage/'.$item->image_path) }}', '{{ e($item->item_name) }}')">
+                                                    <img src="{{ $item->image_url }}" class="rounded-2 border" style="width:48px;height:48px;object-fit:cover;cursor:pointer;" onclick="openImageModal('{{ $item->image_url }}', '{{ e($item->item_name) }}')">
                                                 @else
                                                     <div class="rounded-2 bg-light border text-muted d-flex align-items-center justify-content-center" style="width:48px;height:48px;"><i class="fas fa-image"></i></div>
                                                 @endif

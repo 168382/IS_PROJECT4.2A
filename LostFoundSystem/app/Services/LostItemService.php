@@ -6,7 +6,6 @@ use App\Models\LostItem;
 use App\Models\User;
 use App\Repositories\LostItemRepository;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 class LostItemService
 {
@@ -14,12 +13,14 @@ class LostItemService
         protected LostItemRepository $repository,
         protected NlpMatchingService $nlp,
         protected AuditLogService $audit,
+        protected ItemImage $images,
     ) {}
 
     public function create(User $user, array $data, ?UploadedFile $image = null): LostItem
     {
+        unset($data['image']);
         if ($image) {
-            $data['image_path'] = $image->store('items/lost', 'public');
+            $data = array_merge($data, $this->images->fromUpload($image), ['image_path' => 'database']);
         }
 
         $data['user_id'] = $user->id;
@@ -36,11 +37,9 @@ class LostItemService
 
     public function update(LostItem $item, array $data, ?UploadedFile $image = null): LostItem
     {
+        unset($data['image']);
         if ($image) {
-            if ($item->image_path) {
-                Storage::disk('public')->delete($item->image_path);
-            }
-            $data['image_path'] = $image->store('items/lost', 'public');
+            $data = array_merge($data, $this->images->fromUpload($image), ['image_path' => 'database']);
         }
 
         return $this->repository->update($item, $data);
@@ -48,9 +47,6 @@ class LostItemService
 
     public function delete(LostItem $item): void
     {
-        if ($item->image_path) {
-            Storage::disk('public')->delete($item->image_path);
-        }
         $this->repository->delete($item);
     }
 }

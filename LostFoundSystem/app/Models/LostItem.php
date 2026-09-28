@@ -27,6 +27,11 @@ class LostItem extends Model
         'date_lost' => 'date',
     ];
 
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image_path ? route('items.image', ['type' => 'lost', 'id' => $this->id]) : null;
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

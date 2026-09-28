@@ -151,7 +151,7 @@
                                     <tr>
                                         <td style="width: 80px;">
                                             @if($item->image_path)
-                                                <img src="{{ asset('storage/'.$item->image_path) }}" alt="{{ $item->item_name }}" class="rounded-3 shadow-sm border cursor-pointer" style="width:60px;height:60px;object-fit:cover;" onclick="openImageModal('{{ asset('storage/'.$item->image_path) }}', '{{ e($item->item_name) }}');" title="Click to enlarge photo">
+                                                <img src="{{ $item->image_url }}" alt="{{ $item->item_name }}" class="rounded-3 shadow-sm border cursor-pointer" style="width:60px;height:60px;object-fit:cover;" onclick="openImageModal('{{ $item->image_url }}', '{{ e($item->item_name) }}');" title="Click to enlarge photo">
                                             @else
                                                 <div class="rounded-3 bg-light text-muted border d-flex flex-column align-items-center justify-content-center" style="width:60px;height:60px;">
                                                     <i class="fas fa-image"></i>
@@ -225,7 +225,7 @@
                                     <tr>
                                         <td style="width: 80px;">
                                             @if($item->image_path)
-                                                <img src="{{ asset('storage/'.$item->image_path) }}" alt="{{ $item->item_name }}" class="rounded-3 shadow-sm border cursor-pointer" style="width:60px;height:60px;object-fit:cover;" onclick="openImageModal('{{ asset('storage/'.$item->image_path) }}', '{{ e($item->item_name) }}');" title="Click to enlarge photo">
+                                                <img src="{{ $item->image_url }}" alt="{{ $item->item_name }}" class="rounded-3 shadow-sm border cursor-pointer" style="width:60px;height:60px;object-fit:cover;" onclick="openImageModal('{{ $item->image_url }}', '{{ e($item->item_name) }}');" title="Click to enlarge photo">
                                             @else
                                                 <div class="rounded-3 bg-light text-muted border d-flex flex-column align-items-center justify-content-center" style="width:60px;height:60px;">
                                                     <i class="fas fa-image"></i>
@@ -281,8 +281,8 @@
                                     <!-- Matched Found Item Photo -->
                                     <div class="position-relative" style="height: 180px; background: #e2e8f0;">
                                         @if($match->foundItem && $match->foundItem->image_path)
-                                            <img src="{{ asset('storage/'.$match->foundItem->image_path) }}" alt="{{ $match->foundItem->item_name }}" class="w-100 h-100 object-fit-cover cursor-pointer" onclick="openImageModal('{{ asset('storage/'.$match->foundItem->image_path) }}', '{{ e($match->foundItem->item_name) }}');">
-                                            <button class="btn btn-sm btn-dark bg-opacity-75 position-absolute bottom-0 end-0 m-2 rounded-pill px-2 py-1 fs-7" onclick="openImageModal('{{ asset('storage/'.$match->foundItem->image_path) }}', '{{ e($match->foundItem->item_name) }}');">
+                                            <img src="{{ $match->foundItem->image_url }}" alt="{{ $match->foundItem->item_name }}" class="w-100 h-100 object-fit-cover cursor-pointer" onclick="openImageModal('{{ $match->foundItem->image_url }}', '{{ e($match->foundItem->item_name) }}');">
+                                            <button class="btn btn-sm btn-dark bg-opacity-75 position-absolute bottom-0 end-0 m-2 rounded-pill px-2 py-1 fs-7" onclick="openImageModal('{{ $match->foundItem->image_url }}', '{{ e($match->foundItem->item_name) }}');">
                                                 <i class="fas fa-search-plus me-1"></i> View Photo
                                             </button>
                                         @else
@@ -341,7 +341,7 @@
                                         <td>#CLM-{{ $claim->id }}</td>
                                         <td style="width: 70px;">
                                             @if($claim->foundItem && $claim->foundItem->image_path)
-                                                <img src="{{ asset('storage/'.$claim->foundItem->image_path) }}" alt="{{ $claim->foundItem->item_name }}" class="rounded-3 shadow-sm border cursor-pointer" style="width:50px;height:50px;object-fit:cover;" onclick="openImageModal('{{ asset('storage/'.$claim->foundItem->image_path) }}', '{{ e($claim->foundItem->item_name) }}');">
+                                                <img src="{{ $claim->foundItem->image_url }}" alt="{{ $claim->foundItem->item_name }}" class="rounded-3 shadow-sm border cursor-pointer" style="width:50px;height:50px;object-fit:cover;" onclick="openImageModal('{{ $claim->foundItem->image_url }}', '{{ e($claim->foundItem->item_name) }}');">
                                             @else
                                                 <div class="rounded-3 bg-light text-muted border d-flex align-items-center justify-content-center" style="width:50px;height:50px;">
                                                     <i class="fas fa-image"></i>

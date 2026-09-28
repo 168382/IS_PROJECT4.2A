@@ -28,6 +28,11 @@ class FoundItem extends Model
         'date_found' => 'date',
     ];
 
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image_path ? route('items.image', ['type' => 'found', 'id' => $this->id]) : null;
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

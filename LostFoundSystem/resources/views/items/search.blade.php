@@ -88,8 +88,8 @@
                                                     <!-- Item Image / Banner -->
                                                     <div class="position-relative" style="height: 200px; background: #e2e8f0;">
                                                         @if($item->image_path)
-                                                            <img src="{{ asset('storage/'.$item->image_path) }}" alt="{{ $item->item_name }}" class="w-100 h-100 object-fit-cover" style="cursor:pointer;" onclick="openImageModal('{{ asset('storage/'.$item->image_path) }}', '{{ e($item->item_name) }}');">
-                                                            <button class="btn btn-sm btn-dark bg-opacity-75 position-absolute bottom-0 end-0 m-2 rounded-pill px-2 py-1 fs-7" onclick="openImageModal('{{ asset('storage/'.$item->image_path) }}', '{{ e($item->item_name) }}');">
+                                                            <img src="{{ $item->image_url }}" alt="{{ $item->item_name }}" class="w-100 h-100 object-fit-cover" style="cursor:pointer;" onclick="openImageModal('{{ $item->image_url }}', '{{ e($item->item_name) }}');">
+                                                            <button class="btn btn-sm btn-dark bg-opacity-75 position-absolute bottom-0 end-0 m-2 rounded-pill px-2 py-1 fs-7" onclick="openImageModal('{{ $item->image_url }}', '{{ e($item->item_name) }}');">
                                                                 <i class="fas fa-search-plus me-1"></i> View Photo
                                                             </button>
                                                         @else
@@ -142,8 +142,8 @@
                                                     <!-- Item Image / Banner -->
                                                     <div class="position-relative" style="height: 200px; background: #e2e8f0;">
                                                         @if($item->image_path)
-                                                            <img src="{{ asset('storage/'.$item->image_path) }}" alt="{{ $item->item_name }}" class="w-100 h-100 object-fit-cover" style="cursor:pointer;" onclick="openImageModal('{{ asset('storage/'.$item->image_path) }}', '{{ e($item->item_name) }}');">
-                                                            <button class="btn btn-sm btn-dark bg-opacity-75 position-absolute bottom-0 end-0 m-2 rounded-pill px-2 py-1 fs-7" onclick="openImageModal('{{ asset('storage/'.$item->image_path) }}', '{{ e($item->item_name) }}');">
+                                                            <img src="{{ $item->image_url }}" alt="{{ $item->item_name }}" class="w-100 h-100 object-fit-cover" style="cursor:pointer;" onclick="openImageModal('{{ $item->image_url }}', '{{ e($item->item_name) }}');">
+                                                            <button class="btn btn-sm btn-dark bg-opacity-75 position-absolute bottom-0 end-0 m-2 rounded-pill px-2 py-1 fs-7" onclick="openImageModal('{{ $item->image_url }}', '{{ e($item->item_name) }}');">
                                                                 <i class="fas fa-search-plus me-1"></i> View Photo
                                                             </button>
                                                         @else

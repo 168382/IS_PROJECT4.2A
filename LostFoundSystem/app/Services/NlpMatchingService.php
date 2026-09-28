@@ -17,12 +17,17 @@ class NlpMatchingService
         protected FoundItemRepository $foundItems,
         protected ItemMatchRepository $matches,
         protected NotificationService $notifications,
+        protected ItemImage $images,
     ) {}
 
     public function matchLostItem(LostItem $lostItem): array
     {
         $candidates = $this->foundItems->activeForMatching();
-        $results = $this->callNlpEngine($this->formatItem($lostItem, 'lost'), $candidates, 'found');
+        $results = $this->rankWithImages(
+            $this->callNlpEngine($this->formatItem($lostItem, 'lost'), $candidates, 'found'),
+            $lostItem,
+            $candidates
+        );
 
         foreach ($results as $match) {
             $found = $candidates->firstWhere('id', $match['item_id']);
@@ -53,7 +58,11 @@ class NlpMatchingService
     public function matchFoundItem(FoundItem $foundItem): array
     {
         $candidates = $this->lostItems->activeForMatching();
-        $results = $this->callNlpEngine($this->formatItem($foundItem, 'found'), $candidates, 'lost');
+        $results = $this->rankWithImages(
+            $this->callNlpEngine($this->formatItem($foundItem, 'found'), $candidates, 'lost'),
+            $foundItem,
+            $candidates
+        );
 
         foreach ($results as $match) {
             $lost = $candidates->firstWhere('id', $match['item_id']);
@@ -167,5 +176,43 @@ class NlpMatchingService
         usort($scores, fn ($a, $b) => $b['similarity_score'] <=> $a['similarity_score']);
 
         return array_slice($scores, 0, 5);
+    }
+
+    protected function rankWithImages(array $textMatches, LostItem|FoundItem $target, $candidates): array
+    {
+        $scores = [];
+        foreach ($textMatches as $match) {
+            $scores[(int) $match['item_id']] = (float) $match['similarity_score'];
+        }
+
+        foreach ($candidates as $candidate) {
+            $id = (int) $candidate->id;
+            $text = $scores[$id] ?? 0;
+            if ($target->category_id && $candidate->category_id
+                && (int) $target->category_id !== (int) $candidate->category_id) {
+                continue;
+            }
+
+            $visual = $this->images->similarity($target->image_hash, $candidate->image_hash);
+            if ($visual >= 90) {
+                $scores[$id] = max($text, 0.4 * $text + 0.6 * $visual);
+            }
+        }
+
+        $results = [];
+        foreach ($candidates as $candidate) {
+            $score = $scores[(int) $candidate->id] ?? 0;
+            if ($score > 0) {
+                $results[] = [
+                    'item_id' => $candidate->id,
+                    'item_name' => $candidate->item_name,
+                    'similarity_score' => round($score, 2),
+                ];
+            }
+        }
+
+        usort($results, fn ($a, $b) => $b['similarity_score'] <=> $a['similarity_score']);
+
+        return array_slice($results, 0, 5);
     }
 }

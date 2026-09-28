@@ -7,7 +7,7 @@ A polished campus lost-and-found platform built with Laravel. It helps students 
 - Secure session authentication with login throttling and role-based access for students, staff, and administrators.
 - Detailed lost and found reports with image uploads, dynamic categories, dates, locations, colours, and brands.
 - Searchable item catalogue with category, keyword, location, colour, and date filters.
-- Automated matching through the included NLP service, with a resilient local fallback matcher.
+- Automated text matching through the included NLP service, with a local fallback matcher. Uploaded item photos add visual similarity to match ranking when both reports have images.
 - Evidence-based claim flow: proof of ownership is required, self-claims and duplicate claims are blocked, and competing claims close automatically after approval.
 - Personal dashboard with reports, matches, claim status, and actionable notifications.
 - Staff administration for claims, all reports, users, audit history, and recovery metrics.
@@ -16,7 +16,7 @@ A polished campus lost-and-found platform built with Laravel. It helps students 
 
 - PHP 8.2.4 and Laravel 12
 - Bootstrap 5 and Font Awesome
-- JSON-backed repository layer for zero-configuration local development
+- SQLite for item reports and their uploaded photos; JSON-backed users, categories, claims, matches, and notifications
 - Optional Python/Flask NLP matcher in `machine_learning/`
 
 ## Local setup
@@ -29,14 +29,29 @@ composer install
 npm ci
 cp .env.example .env
 php artisan key:generate
+php artisan migrate
 php artisan storage:link
 php artisan serve
 ```
 
-Visit `http://127.0.0.1:8000` and create an account. Local records are stored in `database/json/`.
+Visit `http://127.0.0.1:8000` and create an account. User accounts, claims, and
+matching records remain in `database/json/`; lost/found item reports and their
+photo bytes are stored together in the SQLite `item_records` table. PHP requires
+the `pdo_sqlite` and `gd` extensions. A new report's photo is served through an
+authenticated route and does not require the public storage symlink.
+Visual similarity uses a perceptual fingerprint with colour and category checks
+to supplement text matching; it suggests potential matches, not proof of ownership.
 On a fresh install, the report and search category menus use the built-in categories
 until a local `database/json/categories.json` file is created. An existing categories
 file takes precedence.
+
+For an existing installation, back up `database/json/`, `storage/app/public/`, and
+the SQLite database before upgrading. After `php artisan migrate`, run
+`php artisan items:import-json` once to copy existing lost/found reports and any
+available photos into SQLite. The import leaves the original files untouched
+and can be rerun; missing photo files are reported and cannot be recovered by
+the import. Keep the original JSON files for users, claims, and matches.
+`php artisan storage:link` is still needed to display existing claim-proof photos.
 
 To build frontend assets:
 
@@ -68,6 +83,6 @@ php artisan route:list
 ## Production notes
 
 - Set `APP_ENV=production`, `APP_DEBUG=false`, a strong `APP_KEY`, and a real mail configuration before deployment.
-- Replace the JSON repository layer with a database-backed implementation before running multiple web workers or deploying at scale.
+- Migrate the remaining JSON-backed users, claims, matches, and notifications to a transactional database before running multiple web workers or deploying at scale.
 - Do not publish the demo JSON data or use any seeded credentials in production. Provision administrator accounts securely and rotate all passwords.
-- Store user-uploaded files on protected, backed-up object storage and configure an appropriate retention policy.
+- Back up the SQLite database (including uploaded item photos) and protect it from public access; configure a retention policy for photos and claim-proof files.

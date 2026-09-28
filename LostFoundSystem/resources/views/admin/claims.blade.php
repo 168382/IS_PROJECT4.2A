@@ -83,10 +83,10 @@
                                                 {{-- Item Photo --}}
                                                 <div class="claim-photo-wrap">
                                                     @if($claim->foundItem && $claim->foundItem->image_path)
-                                                        <img src="{{ asset('storage/'.$claim->foundItem->image_path) }}"
+                                                        <img src="{{ $claim->foundItem->image_url }}"
                                                              alt="{{ $claim->foundItem->item_name }}"
                                                              class="claim-photo"
-                                                             onclick="openImageModal('{{ asset('storage/'.$claim->foundItem->image_path) }}', '{{ e($claim->foundItem->item_name) }}')"
+                                                             onclick="openImageModal('{{ $claim->foundItem->image_url }}', '{{ e($claim->foundItem->item_name) }}')"
                                                              title="Click to enlarge">
                                                         <span class="claim-photo-label">Click to enlarge</span>
                                                     @else
