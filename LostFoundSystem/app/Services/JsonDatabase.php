@@ -38,6 +38,10 @@ class JsonDatabase
         $file = $this->filePath($table);
 
         if (!file_exists($file)) {
+            if ($table === 'categories') {
+                return config('categories');
+            }
+
             return [];
         }
 

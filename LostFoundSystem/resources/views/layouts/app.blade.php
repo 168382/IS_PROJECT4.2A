@@ -174,9 +174,9 @@
         .form-floating > .form-control,
         .form-floating > .form-select {
             border: 1.5px solid var(--border); border-radius: 10px;
-            padding: 1rem 0.9rem; height: auto;
             transition: border-color 0.25s, box-shadow 0.25s;
         }
+        .form-floating > .form-control { padding: 1rem 0.9rem; height: auto; }
         .form-floating > .form-control:focus,
         .form-floating > .form-select:focus {
             border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,86,219,0.12);

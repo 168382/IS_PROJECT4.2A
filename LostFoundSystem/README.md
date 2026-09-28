@@ -33,7 +33,10 @@ php artisan storage:link
 php artisan serve
 ```
 
-Visit `http://127.0.0.1:8000` and create an account. Existing local demo data is stored in `database/json/`.
+Visit `http://127.0.0.1:8000` and create an account. Local records are stored in `database/json/`.
+On a fresh install, the report and search category menus use the built-in categories
+until a local `database/json/categories.json` file is created. An existing categories
+file takes precedence.
 
 To build frontend assets:
 
