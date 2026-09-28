@@ -2,24 +2,53 @@
 
 namespace App\Repositories;
 
-use App\Services\JsonDatabase;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 
+/**
+ * BaseRepository — thin Eloquent-backed CRUD layer.
+ *
+ * Every concrete repository reads and writes through its Eloquent model,
+ * so all data (users, categories, claims, matches, notifications, audit
+ * logs, etc.) is persisted in the configured relational database
+ * (MySQL/SQLite/etc. per DB_CONNECTION) rather than flat JSON files.
+ */
 abstract class BaseRepository
 {
-    protected JsonDatabase $jsonDb;
-
     abstract protected function model(): string;
-    abstract protected function tableName(): string;
 
-    public function __construct(JsonDatabase $jsonDb)
+    /**
+     * The underlying database table, derived from the Eloquent model
+     * unless a subclass overrides it.
+     */
+    protected function tableName(): string
     {
-        $this->jsonDb = $jsonDb;
+        return $this->newModel()->getTable();
     }
 
+    protected function newModel(): Model
+    {
+        $class = $this->model();
+
+        return new $class();
+    }
+
+    protected function query(): Builder
+    {
+        return $this->newModel()->newQuery();
+    }
+
+    /**
+     * Build a detached model instance from a raw attribute array.
+     *
+     * Used by repositories such as ItemRecordRepository that hydrate models
+     * from a JSON-blob table (item_records) instead of native Eloquent
+     * columns, so the usual query builder can't be used to load them.
+     */
     protected function makeModel(array $attributes): Model
     {
         $class = $this->model();
@@ -30,7 +59,7 @@ abstract class BaseRepository
         }
 
         if (isset($attributes['id'])) {
-            $model->id = (int)$attributes['id'];
+            $model->id = (int) $attributes['id'];
         }
 
         $model->exists = true;
@@ -39,30 +68,16 @@ abstract class BaseRepository
         return $model;
     }
 
+    /**
+     * Bridge relations that Eloquent cannot resolve on its own because lost
+     * and found item data lives in the `item_records` JSON-blob table
+     * rather than the (unused) `lost_items` / `found_items` columns.
+     *
+     * category()/user() relations resolve normally through Eloquent since
+     * categories and users are stored in real, populated database tables.
+     */
     protected function loadRelations(Model $model, array $attributes): void
     {
-        // Hydrate category if category_id exists
-        if (isset($attributes['category_id'])) {
-            $catRecord = $this->jsonDb->find('categories', (int)$attributes['category_id']);
-            if ($catRecord) {
-                $catModel = new \App\Models\Category($catRecord);
-                $catModel->id = $catRecord['id'];
-                $model->setRelation('category', $catModel);
-            }
-        }
-
-        // Hydrate user if user_id exists
-        if (isset($attributes['user_id'])) {
-            $userRecord = $this->jsonDb->find('users', (int)$attributes['user_id']);
-            if ($userRecord) {
-                unset($userRecord['password']);
-                $userModel = new \App\Models\User($userRecord);
-                $userModel->id = $userRecord['id'];
-                $model->setRelation('user', $userModel);
-            }
-        }
-
-        // Hydrate lostItem if lost_item_id exists
         if (isset($attributes['lost_item_id'])) {
             $lostModel = app(LostItemRepository::class)->find((int) $attributes['lost_item_id']);
             if ($lostModel) {
@@ -70,7 +85,6 @@ abstract class BaseRepository
             }
         }
 
-        // Hydrate foundItem if found_item_id exists
         if (isset($attributes['found_item_id'])) {
             $foundModel = app(FoundItemRepository::class)->find((int) $attributes['found_item_id']);
             if ($foundModel) {
@@ -81,51 +95,66 @@ abstract class BaseRepository
 
     public function all(array $columns = ['*']): Collection
     {
-        $records = $this->jsonDb->all($this->tableName());
-        $models = array_map(fn($r) => $this->makeModel($r), $records);
-        return new Collection($models);
+        return $this->query()->get($columns)->map(fn (Model $model) => $this->hydrateRelations($model));
     }
 
     public function find(int $id): ?Model
     {
-        $record = $this->jsonDb->find($this->tableName(), $id);
-        return $record ? $this->makeModel($record) : null;
+        $model = $this->query()->find($id);
+
+        return $model ? $this->hydrateRelations($model) : null;
+    }
+
+    /**
+     * Bridge found_item_id/lost_item_id relations for models fetched
+     * through normal Eloquent queries (e.g. Claim, ItemMatch), since their
+     * native belongsTo relations point at the always-empty found_items/
+     * lost_items tables.
+     */
+    protected function hydrateRelations(Model $model): Model
+    {
+        $this->loadRelations($model, $model->getAttributes());
+
+        return $model;
     }
 
     public function create(array $data): Model
     {
-        foreach ($data as $k => $v) {
-            if ($v instanceof \Illuminate\Http\UploadedFile) {
-                unset($data[$k]);
+        foreach ($data as $key => $value) {
+            if ($value instanceof UploadedFile) {
+                unset($data[$key]);
             }
         }
 
-        $record = $this->jsonDb->insert($this->tableName(), $data);
-        return $this->makeModel($record);
+        return $this->hydrateRelations($this->model()::create($data));
     }
 
     public function update(Model $model, array $data): Model
     {
-        $record = $this->jsonDb->update($this->tableName(), $model->id, $data);
-        return $this->makeModel($record ?: array_merge($model->toArray(), $data));
+        $model->fill($data);
+        $model->save();
+
+        return $model;
     }
 
     public function delete(Model $model): bool
     {
-        return $this->jsonDb->delete($this->tableName(), $model->id);
+        return (bool) $model->delete();
     }
 
     public function deleteById(int $id): bool
     {
-        return $this->jsonDb->delete($this->tableName(), $id);
+        $model = $this->find($id);
+
+        return $model ? $this->delete($model) : false;
     }
 
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
-        $records = array_reverse($this->jsonDb->all($this->tableName()));
-        $models = array_map(fn($r) => $this->makeModel($r), $records);
+        $paginator = $this->query()->latest('id')->paginate($perPage);
+        $paginator->getCollection()->transform(fn (Model $model) => $this->hydrateRelations($model));
 
-        return $this->paginateArray($models, $perPage);
+        return $paginator;
     }
 
     protected function paginateArray(array $items, int $perPage = 15): LengthAwarePaginator

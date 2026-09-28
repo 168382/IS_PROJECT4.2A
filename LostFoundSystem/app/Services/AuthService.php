@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -11,6 +13,10 @@ use Illuminate\Support\Str;
  *
  * Provides secure user registration, login, logout, and session
  * management without relying on any third-party auth packages.
+ *
+ * Users are persisted through the App\Models\User Eloquent model,
+ * which stores them in the real `users` database table (MySQL/whichever
+ * connection is configured via DB_CONNECTION) rather than in a flat file.
  *
  * Security features:
  * - Bcrypt password hashing (12 rounds)
@@ -22,13 +28,8 @@ use Illuminate\Support\Str;
  */
 class AuthService
 {
-    protected JsonDatabase $db;
-
-    protected string $table = 'users';
-
-    public function __construct(JsonDatabase $db)
+    public function __construct()
     {
-        $this->db = $db;
         $this->seedDefaultAdmin();
     }
 
@@ -37,13 +38,13 @@ class AuthService
      */
     protected function seedDefaultAdmin(): void
     {
-        if ($this->db->count($this->table) === 0) {
-            $this->db->insert($this->table, [
+        if (User::count() === 0) {
+            User::create([
                 'name' => 'System Administrator',
                 'email' => 'admin@lostfound.com',
                 'password' => Hash::make('Admin@1234'),
                 'role' => 'admin',
-                'email_verified_at' => now()->toDateTimeString(),
+                'email_verified_at' => now(),
             ]);
         }
     }
@@ -55,21 +56,23 @@ class AuthService
      */
     public function register(array $data): array
     {
+        $email = strtolower(strip_tags($data['email']));
+
         // Check for duplicate email
-        $existing = $this->db->findBy($this->table, 'email', strtolower($data['email']));
+        $existing = User::where('email', $email)->first();
         if ($existing) {
             throw new \Exception('An account with this email already exists.');
         }
 
-        $user = $this->db->insert($this->table, [
+        $user = User::create([
             'name' => strip_tags($data['name']),
-            'email' => strtolower(strip_tags($data['email'])),
+            'email' => $email,
             'password' => Hash::make($data['password']),
             'role' => in_array($data['role'] ?? 'student', ['student', 'staff']) ? $data['role'] : 'student',
             'email_verified_at' => null,
         ]);
 
-        return $user;
+        return $user->toArray();
     }
 
     /**
@@ -79,17 +82,17 @@ class AuthService
      */
     public function attempt(string $email, string $password): ?array
     {
-        $user = $this->db->findBy($this->table, 'email', strtolower($email));
+        $user = User::where('email', strtolower($email))->first();
 
         if (! $user) {
             return null;
         }
 
-        if (! Hash::check($password, $user['password'])) {
+        if (! Hash::check($password, $user->password)) {
             return null;
         }
 
-        return $user;
+        return $user->toArray();
     }
 
     /**
@@ -124,7 +127,7 @@ class AuthService
             return null;
         }
 
-        $user = $this->db->find($this->table, (int) $userId);
+        $user = User::find((int) $userId)?->toArray();
 
         if ($user) {
             // Never expose password hash to views
@@ -155,7 +158,8 @@ class AuthService
      */
     public function findUser(int $id): ?array
     {
-        $user = $this->db->find($this->table, $id);
+        $user = User::find($id)?->toArray();
+
         if ($user) {
             unset($user['password']);
         }
@@ -168,13 +172,12 @@ class AuthService
      */
     public function allUsers(): array
     {
-        $users = $this->db->all($this->table);
+        return User::all()->map(function (User $user) {
+            $record = $user->toArray();
+            unset($record['password']);
 
-        return array_map(function ($user) {
-            unset($user['password']);
-
-            return $user;
-        }, $users);
+            return $record;
+        })->all();
     }
 
     /**
@@ -185,27 +188,33 @@ class AuthService
         if (! in_array($role, ['admin', 'staff', 'student'])) {
             return false;
         }
-        $updated = $this->db->update($this->table, $userId, ['role' => $role]);
 
-        return $updated !== null;
+        $user = User::find($userId);
+        if (! $user) {
+            return false;
+        }
+
+        $user->role = $role;
+
+        return $user->save();
     }
 
     /** Create a one-hour password reset token for a registered account. */
     public function createPasswordResetToken(string $email): ?string
     {
-        $user = $this->db->findBy($this->table, 'email', strtolower($email));
+        $user = User::where('email', strtolower($email))->first();
 
         if (! $user) {
             return null;
         }
 
         $token = Str::random(64);
-        $this->db->insert('password_resets', [
-            'email' => $user['email'],
-            'token_hash' => hash('sha256', $token),
-            'expires_at' => now()->addHour()->toDateTimeString(),
-            'used_at' => null,
-        ]);
+
+        // Only one active reset token per email; a new request invalidates any previous one.
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            ['token' => hash('sha256', $token), 'created_at' => now()]
+        );
 
         return $token;
     }
@@ -214,24 +223,25 @@ class AuthService
     public function resetPassword(string $token, string $password): bool
     {
         $tokenHash = hash('sha256', $token);
-        $record = collect($this->db->all('password_resets'))
-            ->sortByDesc('created_at')
-            ->first(fn (array $reset) => empty($reset['used_at'])
-                && ($reset['token_hash'] ?? '') === $tokenHash
-                && isset($reset['expires_at'])
-                && now()->lessThan($reset['expires_at']));
+
+        $record = DB::table('password_reset_tokens')
+            ->where('token', $tokenHash)
+            ->where('created_at', '>=', now()->subHour())
+            ->first();
 
         if (! $record) {
             return false;
         }
 
-        $user = $this->db->findBy($this->table, 'email', $record['email']);
+        $user = User::where('email', $record->email)->first();
         if (! $user) {
             return false;
         }
 
-        $this->db->update($this->table, (int) $user['id'], ['password' => Hash::make($password)]);
-        $this->db->update('password_resets', (int) $record['id'], ['used_at' => now()->toDateTimeString()]);
+        $user->password = Hash::make($password);
+        $user->save();
+
+        DB::table('password_reset_tokens')->where('email', $record->email)->delete();
 
         return true;
     }

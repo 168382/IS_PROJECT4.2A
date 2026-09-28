@@ -3,11 +3,13 @@
 namespace App\Services;
 
 /**
- * JsonDatabase — A flat-file JSON database service.
+ * JsonDatabase — A flat-file JSON reader used only for one-off data
+ * migration (see the `items:import-json` console command, which imports
+ * legacy JSON-stored lost/found item reports into the database).
  *
- * Provides CRUD operations using JSON files stored in database/json/.
- * Each "table" is a separate JSON file. Thread-safe via file locking.
- * This eliminates the need for MySQL/SQLite during development.
+ * All live application data (users, categories, items, claims, matches,
+ * notifications, audit logs, etc.) is persisted in the relational
+ * database via Eloquent models/repositories, not in JSON files.
  */
 class JsonDatabase
 {
@@ -38,10 +40,6 @@ class JsonDatabase
         $file = $this->filePath($table);
 
         if (!file_exists($file)) {
-            if ($table === 'categories') {
-                return config('categories');
-            }
-
             return [];
         }
 
