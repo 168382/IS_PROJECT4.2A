@@ -1,31 +1,20 @@
-*.log
-.DS_Store
+# Laravel dependencies
+/vendor/
+/LostFoundSystem/vendor/
+
+# Python virtual environment
+venv/
+/LostFoundSystem/venv/
+
+# Node dependencies
+node_modules/
+/LostFoundSystem/node_modules/
+
+# Environment files
 .env
-.env.backup
-.env.production
-.phpactor.json
-.phpunit.result.cache
-/.codex
-/.cursor/
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
-/auth.json
-/node_modules
-/machine_learning/venv
-/machine_learning/__pycache__
-/machine_learning/*/__pycache__
-/public/build
-/public/fonts-manifest.dev.json
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
-/vendor
-/database/json/*.json
-_ide_helper.php
-Homestead.json
-Homestead.yaml
-Thumbs.db
+.env.*
+!.env.example
+
+# Python cache
+__pycache__/
+*.py[cod]

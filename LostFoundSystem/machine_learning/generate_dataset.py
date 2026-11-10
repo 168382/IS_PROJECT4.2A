@@ -1,0 +1,58 @@
+
+import pandas as pd
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+DATASET_DIR = BASE_DIR / "datasets"
+DATASET_DIR.mkdir(exist_ok=True)
+
+records = [
+    # Positive matches
+    ["Black Nike backpack", "Nike black school backpack", "Black Nike bag", "Nike school bag", "Bags", "Bags", "Black", "Black", "Library", "Library", 1],
+    ["Samsung phone", "Samsung smartphone", "Samsung Galaxy mobile phone", "Samsung Galaxy handset", "Electronics", "Electronics", "Black", "Black", "Cafeteria", "Cafeteria", 1],
+    ["Brown leather wallet", "Leather wallet brown", "Brown wallet containing cards", "Brown leather wallet with cards", "Personal Items", "Personal Items", "Brown", "Brown", "Library", "Library", 1],
+    ["Student ID card", "University student identification card", "Strathmore student ID", "Student identification card", "Documents", "Documents", "White", "White", "Classroom", "Classroom", 1],
+    ["Red water bottle", "Red reusable bottle", "Red plastic drinking bottle", "Red water flask", "Accessories", "Accessories", "Red", "Red", "Sports field", "Sports field", 1],
+    ["HP laptop", "HP notebook computer", "HP laptop computer", "HP portable computer", "Electronics", "Electronics", "Silver", "Silver", "Library", "Library", 1],
+    ["Black wireless earbuds", "Black Bluetooth earphones", "Wireless black earbuds", "Black Bluetooth headphones", "Electronics", "Electronics", "Black", "Black", "Cafeteria", "Cafeteria", 1],
+    ["Silver car keys", "Silver vehicle keys", "Car keys with silver keyring", "Vehicle keys", "Personal Items", "Personal Items", "Silver", "Silver", "Parking", "Parking", 1],
+    ["Blue umbrella", "Blue folding umbrella", "Navy blue rain umbrella", "Blue portable umbrella", "Accessories", "Accessories", "Blue", "Blue", "Lecture hall", "Lecture hall", 1],
+    ["Black wristwatch", "Black digital watch", "Black wrist watch", "Black smartwatch", "Accessories", "Accessories", "Black", "Black", "Library", "Library", 1],
+
+    # Negative matches
+    ["Black backpack", "Blue water bottle", "School bag", "Drinking bottle", "Bags", "Accessories", "Black", "Blue", "Library", "Cafeteria", 0],
+    ["Samsung phone", "HP laptop", "Samsung mobile phone", "HP notebook computer", "Electronics", "Electronics", "Black", "Silver", "Library", "Classroom", 0],
+    ["Brown leather wallet", "Black earbuds", "Leather wallet", "Bluetooth earphones", "Personal Items", "Electronics", "Brown", "Black", "Library", "Cafeteria", 0],
+    ["Student ID card", "House keys", "University identification card", "Keys with keyring", "Documents", "Personal Items", "White", "Silver", "Classroom", "Parking", 0],
+    ["Red water bottle", "Green notebook", "Red drinking bottle", "Green exercise book", "Accessories", "Stationery", "Red", "Green", "Sports field", "Library", 0],
+    ["Black Nike backpack", "Black laptop", "Nike school bag", "Portable computer", "Bags", "Electronics", "Black", "Black", "Library", "Library", 0],
+    ["Silver car keys", "Silver wristwatch", "Vehicle keys", "Wrist watch", "Personal Items", "Accessories", "Silver", "Silver", "Parking", "Cafeteria", 0],
+    ["Blue umbrella", "Blue backpack", "Rain umbrella", "School bag", "Accessories", "Bags", "Blue", "Blue", "Lecture hall", "Library", 0],
+    ["Black wristwatch", "Black phone", "Digital wristwatch", "Mobile phone", "Accessories", "Electronics", "Black", "Black", "Library", "Classroom", 0],
+    ["White student ID card", "White notebook", "Student identification card", "Exercise book", "Documents", "Stationery", "White", "White", "Classroom", "Library", 0],
+]
+
+columns = [
+    "lost_name",
+    "found_name",
+    "lost_description",
+    "found_description",
+    "lost_category",
+    "found_category",
+    "lost_color",
+    "found_color",
+    "lost_location",
+    "found_location",
+    "same_item"
+]
+
+df = pd.DataFrame(records, columns=columns)
+
+output_path = DATASET_DIR / "training_data.csv"
+df.to_csv(output_path, index=False)
+
+print("Training dataset generated successfully!")
+print("Total records:", len(df))
+print("\nLabel distribution:")
+print(df["same_item"].value_counts().sort_index())
+print("\nDataset saved to:", output_path)

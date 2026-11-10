@@ -2,15 +2,7 @@
 
 namespace App\Services;
 
-/**
- * JsonDatabase — A flat-file JSON reader used only for one-off data
- * migration (see the `items:import-json` console command, which imports
- * legacy JSON-stored lost/found item reports into the database).
- *
- * All live application data (users, categories, items, claims, matches,
- * notifications, audit logs, etc.) is persisted in the relational
- * database via Eloquent models/repositories, not in JSON files.
- */
+
 class JsonDatabase
 {
     protected string $basePath;

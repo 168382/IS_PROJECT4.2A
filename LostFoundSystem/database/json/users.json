@@ -1,0 +1,62 @@
+[
+    {
+        "name": "System Administrator",
+        "email": "admin@lostfound.com",
+        "password": "$2y$12$04XlbOGwbtYMTMswG4vP5.00KV2vDcAoisDhrcthUpPtrEUjNYV8u",
+        "role": "admin",
+        "email_verified_at": "2026-09-25 19:44:37",
+        "id": 1,
+        "created_at": "2026-09-25 19:44:37",
+        "updated_at": "2026-09-25 19:44:37"
+    },
+    {
+        "name": "Uncle demon",
+        "email": "uncledemon@gmail.com",
+        "password": "$2y$12$nUW57ipF59nqY6ZS8IsCVuA0XdK5sRWXankFzfbHSYdOP24mg1ctu",
+        "role": "student",
+        "email_verified_at": null,
+        "id": 2,
+        "created_at": "2026-09-25 19:52:11",
+        "updated_at": "2026-09-25 19:52:11"
+    },
+    {
+        "name": "Alex",
+        "email": "alexyam@gmail.com",
+        "password": "$2y$12$vB1IHiRbshBtwZidjqgaMe7KcgUgPd05tfV9xXSs1RLJWLE2wnlyi",
+        "role": "student",
+        "email_verified_at": null,
+        "id": 3,
+        "created_at": "2026-09-28 05:49:03",
+        "updated_at": "2026-09-28 05:49:03"
+    },
+    {
+        "name": "Kamau Jim",
+        "email": "kamaujim@gmail.com",
+        "password": "$2y$12$NIc0Z8IVs3BBjOLzJQb16erwgQ3Ko2HP\/v.OpBqndfqacqkbnFTla",
+        "role": "student",
+        "email_verified_at": null,
+        "id": 4,
+        "created_at": "2026-09-28 05:51:27",
+        "updated_at": "2026-09-28 05:51:27"
+    },
+    {
+        "name": "Alice Kinya",
+        "email": "alicekinya@gmail.com",
+        "password": "$2y$12$FXr4hXiEEhngVO.EtRd6kuX2YoKjsvQZPsbtY4.D9ceWeKktKr2ty",
+        "role": "student",
+        "email_verified_at": null,
+        "id": 5,
+        "created_at": "2026-09-28 13:35:58",
+        "updated_at": "2026-09-28 13:57:09"
+    },
+    {
+        "name": "Rex Ram",
+        "email": "rexram@gmail.com",
+        "password": "$2y$12$pkbpN4t2I09bzctsSJvvGuA5o0EWddLugdVlI2dvI8pUbGWuGSuLC",
+        "role": "student",
+        "email_verified_at": null,
+        "id": 6,
+        "created_at": "2026-09-28 13:43:15",
+        "updated_at": "2026-09-28 13:43:15"
+    }
+]
